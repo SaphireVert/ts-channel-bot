@@ -1,0 +1,32 @@
+{
+  "name": "ts-channel-bot",
+  "version": "0.0.1",
+  "description": "A channel bot",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node -r ts-node/register index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SaphireVert/ts-channel-bot.git"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "typescript"
+  ],
+  "author": "saphirevert",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SaphireVert/ts-channel-bot/issues"
+  },
+  "homepage": "https://github.com/SaphireVert/ts-channel-bot#readme",
+  "dependencies": {
+    "telegraf": "^4.3.0",
+    "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1"
+  }
+}
