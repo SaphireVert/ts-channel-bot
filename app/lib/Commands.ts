@@ -47,7 +47,8 @@ export class Commands {
             let userFromId = ctx.update.message.chat.id;
             this.inlineCallbackKeyboard(userFromId, "Welcome ! What do you wants to do ?", 
                 [
-                    [["Admin request", "admin_request", false], ["Toto request", "totoCallback"]]
+                    [["Admin request", "admin_request"], ["New post", "new_post"]],
+                    [["Settings", "settings"], ["Edit posts", "totoCallback"]]
                 ]
             );  
         })
@@ -74,7 +75,7 @@ export class Commands {
                         let message = `${callbackUserFrom.username} wants to be admin, do you accept ?`;
                         return ctx.telegram.sendMessage(this.secrets.BOT_OWNER_ID, message)
                     } else {
-                        return ctx.reply("You are the owner...")
+                        return ctx.reply("You are the owner of the channel...")
                     }
                     break;
             }
