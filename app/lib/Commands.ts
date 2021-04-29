@@ -107,6 +107,7 @@ export class Commands {
                     Controller.userController.addUser(command[1]);
                     Controller.userController.userList[command[1]].settings.isAdmin = true;
                     Controller.userController.saveUsers();
+                    ctx.telegram.sendMessage(command[1], "Request accepted")
                     break;
             }
             return "toto";
