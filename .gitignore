@@ -1,4 +1,5 @@
 secrets.json
+data
 # Logs
 logs
 *.log
