@@ -1,6 +1,9 @@
-import { UserController } from "./UserController";
+import { Users } from "./Users";
 
 export class Controller{
-    static userController: UserController = new UserController();
-
+    static userController: Users = new Users();
+    
+    set(){
+        Controller.userController = new Users();
+    }
 }

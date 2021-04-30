@@ -1,3 +1,5 @@
+import { Users } from "../controller/Users";
+
 var fs = require('fs');
 
 export class User {

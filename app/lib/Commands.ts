@@ -1,6 +1,7 @@
 import { Telegraf, Markup } from 'telegraf';
 import { Controller } from '../controller/Controller';
-import { UserController } from '../controller/UserController';
+import { Users } from '../controller/Users';
+import { User } from '../model/User';
 // import { User } from '../model/User';
 
 export class Commands {
@@ -14,9 +15,9 @@ export class Commands {
     }
 
     async load(){
-        console.log(Markup.button.callback('Admin request', 'admin_request'));
+        // console.log(Markup.button.callback('Admin request', 'admin_request'));
 
-        this.menu();
+        // this.menu();
         this.onCallbackQuery();
         this.mainMenu();
         this.inlineCommand();
@@ -27,8 +28,8 @@ export class Commands {
     }
 
 
-    async test(){
-
+    async test(ctx:any){
+        ctx.reply(ctx.message.text)
     }
 
     async inlineCallbackKeyboard(chat_id: string, inline_message: string, keyboard: Array<any>){
@@ -51,25 +52,46 @@ export class Commands {
 
 
     
-    async menu(){
-        return this.bot.command('/menu', (ctx: any) => {
+    async menu(ctx:any){
             let userFromId = ctx.update.message.chat.id;
+            Users.check(userFromId);
+            let isNotAdmin = Users.list[userFromId].settings.isAdmin;
+            let isAdmin = Users.list[userFromId].settings.isAdmin ? false : true;
+            
             this.inlineCallbackKeyboard(userFromId, "Welcome ! What do you wants to do ?", 
                 [
-                    [["Admin request", "admin_request"], ["New post", "new_post"]],
-                    [["Settings", "settings"], ["Edit posts", "totoCallback"]]
+                    [["Admin request", "admin_request", isNotAdmin], ["New post", "new_post", isAdmin]],
+                    [["Settings", "settings", isAdmin], ["Edit posts", "totoCallback", isAdmin]]
                 ]
             );  
-        })
     }
 
     async onText(){
-        console.log(await this.bot.telegram.getChatMember(976140946, 976140946));
-        console.log(await this.bot.telegram.getChatMembersCount(976140946));
+        // console.log(await this.bot.telegram.getChatMember(976140946, 976140946));
+        // console.log(await this.bot.telegram.getChatMembersCount(976140946));
         // var test = new dataModel();
         // test.createUser("976140946");
         return this.bot.on('text', (ctx: any) => {
             console.log(ctx.update.message.from);
+            console.log(ctx.message.text);
+            var commandArray = ctx.message.text.split(" ");
+            console.log(this.bot.botInfo);
+            
+            switch (true) {
+                case new RegExp(`(^\/test)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.test(ctx); break;  
+                    
+                
+                case new RegExp(`(^\/menu)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.menu(ctx); break;
+                
+                
+                case new RegExp(`(^\/testreg)`).test(ctx.message.text):
+                    console.log("testreg works");
+                    
+                    break;
+            
+                default:
+                    break;
+            }
             
         })
           
@@ -92,9 +114,10 @@ export class Commands {
                     if(callbackUserFrom.id != this.secrets.BOT_OWNER_ID){
                         ctx.reply("Admin request made")
                         let message = `${callbackUserFrom.username} wants to be admin, do you accept ?`;
-                        this.inlineCallbackKeyboard(this.secrets.BOT_OWNER_ID, message, [[["Yes", `setadmin ${callbackUserFrom.id}`], ["No", "no"]]]);
+                        this.inlineCallbackKeyboard(this.secrets.BOT_OWNER_ID, message, [[["Yes", `setadmin ${callbackUserFrom.id} true`], ["No", `setadmin ${callbackUserFrom.id} false`]]]);
                         // return ctx.telegram.sendMessage(this.secrets.BOT_OWNER_ID, message);
                     } else {
+                         
                         return ctx.reply("You are the owner of the channel...")
                     }
                     break;
@@ -104,11 +127,21 @@ export class Commands {
                     break;
 
                 case "setadmin":
-                    Controller.userController.addUser(command[1]);
-                    Controller.userController.userList[command[1]].settings.isAdmin = true;
-                    Controller.userController.saveUsers();
-                    ctx.telegram.sendMessage(command[1], "Request accepted")
+                    if (command[2] == 'true') {
+                        Users.setPrivilegeStatus(command[1], true);
+                        ctx.telegram.sendMessage(command[1], "Request accepted")
+                    }
+                    else
+                    {
+                        Users.setPrivilegeStatus(command[1], false);
+                        ctx.telegram.sendMessage(command[1], "Request refused")
+                    }
+
                     break;
+
+                case "no":
+                    Users.setPrivilegeStatus(command[1], false);
+                    break
             }
             return "toto";
         })
@@ -145,8 +178,12 @@ export class Commands {
     }
 
     async start(){
-        return this.bot.start((ctx: any) => ctx.reply('Welcome !'));
+        return this.bot.start((ctx: any) => {
+            Users.check(ctx.message.from.id);
+            ctx.reply('Welcome !');
+        })
     }
+
     async launch(){
         return this.bot.launch();
     }
