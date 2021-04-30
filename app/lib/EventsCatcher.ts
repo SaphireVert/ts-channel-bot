@@ -66,13 +66,10 @@ export class EventsCatcher {
                 Users.list[ctx.message.from.id] = false;
                 this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\nrejoignez-nous",
                     [
-                        [["Publish", "publish"]],
+                        [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
                         [["Cancel", "cancel"]]
                     ]
                 );  
-                // ctx.reply(ctx.message.text + 
-                //     , 
-                // );
             }
             var commandArray = ctx.message.text.split(" ");
             switch (true) {
@@ -132,7 +129,12 @@ export class EventsCatcher {
 
                 case "no":
                     Users.setPrivilegeStatus(command[1], false);
-                    break
+                    break;
+
+                case "publish":
+                    console.log(ctx.update.callback_query.message.text);
+                    this.bot.telegram.sendMessage(this.secrets.JCid, ctx.update.callback_query.message.text)
+                    break;
             }
             return "toto";
         })

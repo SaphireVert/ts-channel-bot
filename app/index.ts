@@ -8,4 +8,3 @@ const bot = new Telegraf(BOT_TOKEN);
 
 var commands = new EventsCatcher(bot, secrets);
 commands.load();
-
