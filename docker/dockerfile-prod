@@ -16,4 +16,4 @@ COPY run.sh run.sh
 
 # Exports
 EXPOSE 3000
-CMD [ "bash" "run.sh" ]
+CMD [ "npm", "run", "start" ]
