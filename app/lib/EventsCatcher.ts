@@ -62,12 +62,12 @@ export class EventsCatcher {
 
     async onText(){
         
-        return this.bot.on('text', (ctx: any) => {
+        return this.bot.on('text', async (ctx: any) => {
             console.log(ctx);
             Users.check(ctx.from.id);
             if (Users.list[ctx.message.from.id].isPending == true) {
                 Users.list[ctx.message.from.id].isPending = false;
-                ctx.reply("Here is the preview of your message.");
+                await ctx.reply("Here is the preview of your message.");
                 this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\n(liens pour rejoindre le canal)",
                     [
                         [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
