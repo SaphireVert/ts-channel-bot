@@ -4,8 +4,8 @@
   "description": "A channel bot",
   "main": "index.ts",
   "scripts": {
-    "start": "node -r ts-node/register index.ts",
-    "dev": "nodemon --watch './**/*.ts' --exec 'node -r ts-node/register' index.ts --dev",
+    "start": "npm i && node -r ts-node/register index.ts",
+    "dev": "npm i && nodemon --watch './**/*.ts' --exec 'node -r ts-node/register' index.ts --dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

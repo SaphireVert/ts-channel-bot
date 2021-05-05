@@ -7,12 +7,13 @@ WORKDIR /usr/src/app
 # Install dependencies
 # COPY package.json .
 
+RUN apt install bash
 RUN npm install
 
 
 # Bundle app source
-# COPY . .
+COPY run.sh run.sh
 
 # Exports
 EXPOSE 3000
-CMD [ "npm", "start" ]
+CMD [ "bash" "run.sh" ]
