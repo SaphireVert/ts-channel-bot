@@ -61,10 +61,13 @@ export class EventsCatcher {
     }
 
     async onText(){
+        
         return this.bot.on('text', (ctx: any) => {
-            if (Users.list[ctx.message.from.id] == true) {
-                Users.list[ctx.message.from.id] = false;
-                this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\nrejoignez-nous",
+            console.log(ctx);
+            if (Users.list[ctx.message.from.id].isPending == true) {
+                Users.list[ctx.message.from.id].isPending = false;
+                ctx.reply("Here is the preview of your message.");
+                this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\n(liens pour rejoindre le canal)",
                     [
                         [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
                         [["Cancel", "cancel"]]
@@ -85,30 +88,22 @@ export class EventsCatcher {
     async onCallbackQuery(){
         return this.bot.on('callback_query', async (ctx: any) => {
             var callbackUserFrom = ctx.update.callback_query.from
-            // console.log(ctx.update.callback_query.message.reply_markup);
-            // console.log(ctx.update.callback_query);
-            // console.log(ctx.update.callback_query.message.reply_markup.inline_keyboard[0][0]);
-            
-            
             var queryData:string = ctx.update.callback_query.data;
             var command = queryData.split(" ");
             switch(command[0]){
                 case 'admin_request':
                     if(callbackUserFrom.id != this.secrets.BOT_OWNER_ID){
-                        // ctx.reply("Admin request made")
                         let ctxMarkup = ctx.update.callback_query.message.reply_markup;
                         ctxMarkup.inline_keyboard[0][0] = { text: "Request sent", callback_data: "none" };
                         this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkup)
                         let message = `${callbackUserFrom.username} wants to be admin, do you accept ?`;
                         this.inlineCallbackKeyboard(this.secrets.BOT_OWNER_ID, message, [[["Yes", `setadmin ${callbackUserFrom.id} true`], ["No", `setadmin ${callbackUserFrom.id} false`]]]);
-                        // return ctx.telegram.sendMessage(this.secrets.BOT_OWNER_ID, message);
                     } else {
                         return ctx.reply("You are the owner of the channel...")
                     }
                     break;
 
                 case 'new_post':
-                    // return this.newPost()
                     break;
 
                 case "setadmin":
@@ -132,7 +127,6 @@ export class EventsCatcher {
                     break;
 
                 case "publish":
-                    console.log(ctx.update.callback_query.message.text);
                     this.bot.telegram.sendMessage(this.secrets.JCid, ctx.update.callback_query.message.text)
                     break;
             }
@@ -141,17 +135,8 @@ export class EventsCatcher {
     }
 
     async newPost(ctx:any){
-        Users.list[ctx.message.from.id] = true;
-        // const botNewPost = new Telegraf(this.secrets.BOT_TOKEN);
-        // botNewPost.launch();
-        // console.log("Ok, tell me what you want to post");
-        // botNewPost.hears('text', (ctx) => {
-        //     ctx.reply(ctx.message.text + "\n\n\nTexte ajouté");
-        //     botNewPost.stop();
-        // })
-        // this.bot.hears('toto', () => {
-        //     console.log("---------------Message---------");
-        // });
+        Users.list[ctx.message.from.id].isPending = true;
+        ctx.reply("Ok, tell me what you would like to post.")
     }
 
     async start(ctx:any){

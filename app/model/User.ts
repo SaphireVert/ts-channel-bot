@@ -4,9 +4,10 @@ var fs = require('fs');
 
 export class User {
     settings: UserSettings;
-
+    isPending: boolean;
     constructor(id:string){
         this.settings = new UserSettings();
+        this.isPending = false;
     }
 }
 
