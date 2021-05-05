@@ -35,6 +35,12 @@ export class Users{
     }
 
     private static loadUsers(){
+        if (!fs.existsSync('./data')) {
+            fs.mkdirSync('./data');
+        }
+        if (!fs.existsSync('./data/data.json')) {
+            fs.writeFileSync('./data/data.json', '');
+        }
         var tempObj:any = {};
         try {
             tempObj = JSON.parse(fs.readFileSync(Users.storageFile));
