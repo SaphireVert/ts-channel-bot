@@ -36,12 +36,25 @@ export class EventsCatcher {
         })
     }
 
-    async menu(ctx:any){
-            let userFromId = ctx.update.message.chat.id;
+    async menu(userFromId:any){
             Users.check(userFromId);
             let ifNotAdmin = Users.list[userFromId].settings.isAdmin;
             let ifAdmin = Users.list[userFromId].settings.isAdmin ? false : true;
-            let message = Users.list[userFromId].settings.isAdmin ? "Welcome ! What would you want to do ?" : "You have to be admin to start using this bot"
+            // let message = Users.list[userFromId].settings.isAdmin ? "What would you want to do ?" : "You have to be admin to start using this bot"
+            let message = Users.list[userFromId].settings.isAdmin ? "What would you want to do ?" : "You have to be admin to start using this bot"
+            
+            if(!Users.list[userFromId].settings.isAdmin){
+                
+            } else {
+                return this.bot.telegram.sendMessage(userFromId, message, Markup
+                    .keyboard([
+                      ['📢 New post'], // Row1 with 2 buttons
+                      ['⚙️ Setting'], // Row2 with 2 buttons
+                    ])
+                    .oneTime()
+                    .resize())
+            }
+            
             // this.inlineCallbackKeyboard(userFromId, message, 
             //     [
             //         [["Admin request", "admin_request", ifNotAdmin], ["New post", "new_post", ifAdmin]],
@@ -49,13 +62,6 @@ export class EventsCatcher {
             //     ]
             // );  
             
-            return this.bot.telegram.sendMessage(ctx.update.message.chat.id, message, Markup
-                .keyboard([
-                  ['📢 New post'], // Row1 with 2 buttons
-                  ['⚙️ Setting'], // Row2 with 2 buttons
-                ])
-                .oneTime()
-                .resize())
             
             
     }
@@ -63,8 +69,15 @@ export class EventsCatcher {
     async onText(){
         
         return this.bot.on('text', async (ctx: any) => {
-            console.log(ctx);
             Users.check(ctx.from.id);
+            if (!Users.list[ctx.from.id].settings.isAdmin) {
+                // await ctx.reply("You have to be admin to start using this bot");
+                return this.inlineCallbackKeyboard(ctx.from.id, "You have to be admin to start using this bot", 
+                    [
+                        [["Admin request", "admin_request"]]
+                    ]
+                );  
+            }
             if (Users.list[ctx.message.from.id].isPending == true) {
                 Users.list[ctx.message.from.id].isPending = false;
                 await ctx.reply("Here is the preview of your message.");
@@ -78,7 +91,7 @@ export class EventsCatcher {
             var commandArray = ctx.message.text.split(" ");
             switch (true) {
                 case new RegExp(`(^\/test)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.test(ctx); break;  
-                case new RegExp(`(^\/menu)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.menu(ctx); break;
+                case new RegExp(`(^\/menu)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.menu(ctx.from.id); break;
                 case new RegExp(`(^\/start)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.start(ctx); break;
                 case new RegExp('📢 New post').test(ctx.message.text): this.newPost(ctx); break;
                 default: break;
@@ -113,6 +126,8 @@ export class EventsCatcher {
                     if (command[2] == 'true') {
                         Users.setPrivilegeStatus(command[1], true);
                         ctx.telegram.sendMessage(command[1], "Request accepted")
+                        ctx.telegram.sendMessage(command[1], "Welcome to the club !")
+                        this.menu(command[1]);
                         this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkup)
                     }
                     else
@@ -142,7 +157,7 @@ export class EventsCatcher {
 
     async start(ctx:any){
         Users.check(ctx.message.from.id);
-        ctx.reply('Welcome !');
+        ctx.reply('Welcome ! Type /menu to begin');
     }
 
     async launch(){
