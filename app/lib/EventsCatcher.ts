@@ -125,8 +125,8 @@ export class EventsCatcher {
                     ctxMarkup.inline_keyboard[0] = [{ text: "Accepted", callback_data: "none" }];
                     if (command[2] == 'true') {
                         Users.setPrivilegeStatus(command[1], true);
-                        ctx.telegram.sendMessage(command[1], "Request accepted")
-                        ctx.telegram.sendMessage(command[1], "Welcome to the club !")
+                        await ctx.telegram.sendMessage(command[1], "Request accepted")
+                        await ctx.telegram.sendMessage(command[1], "Welcome to the club !")
                         this.menu(command[1]);
                         this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkup)
                     }
