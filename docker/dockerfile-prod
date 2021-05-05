@@ -12,7 +12,7 @@ RUN npm install
 
 
 # Bundle app source
-COPY run.sh run.sh
+# COPY run.sh run.sh
 
 # Exports
 EXPOSE 3000
