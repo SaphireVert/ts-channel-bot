@@ -1,8 +1,11 @@
 FROM node:latest
 
 # Create app directory
+
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
+
+# RUN chown -R 1000:1000 "/root/.npm"
 
 # Exports
 EXPOSE 3000
