@@ -64,6 +64,7 @@ export class EventsCatcher {
         
         return this.bot.on('text', (ctx: any) => {
             console.log(ctx);
+            Users.check(ctx.from.id);
             if (Users.list[ctx.message.from.id].isPending == true) {
                 Users.list[ctx.message.from.id].isPending = false;
                 ctx.reply("Here is the preview of your message.");
