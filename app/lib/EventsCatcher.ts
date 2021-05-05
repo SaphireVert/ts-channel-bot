@@ -71,7 +71,6 @@ export class EventsCatcher {
     }
 
     async onText(){
-        
         return this.bot.on('text', async (ctx: any) => {
             Users.check(ctx.from.id);
             if (!Users.list[ctx.from.id].settings.isAdmin) {
@@ -147,7 +146,10 @@ export class EventsCatcher {
                     break;
 
                 case "publish":
-                    this.bot.telegram.sendMessage(this.secrets.JCid, ctx.update.callback_query.message.text)
+                    let ctxMarkupPublish = ctx.update.callback_query.message.reply_markup;
+                    ctxMarkupPublish.inline_keyboard[0] = [{ text: "Published", callback_data: "none" }];
+                    this.bot.telegram.sendMessage(this.secrets.channelID, ctx.update.callback_query.message.text)
+                    this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupPublish)
                     break;
             }
             return "toto";
