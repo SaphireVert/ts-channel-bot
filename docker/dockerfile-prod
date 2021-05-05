@@ -3,10 +3,18 @@ FROM node:latest
 # Create app directory
 
 RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/scripts
 WORKDIR /usr/src/app
 
-# RUN chown -R 1000:1000 "/root/.npm"
+RUN apt update -y && apt upgrade -y
+RUN mkdir "/root/.npm" && touch "/root/.npm/_logs" && touch "_update-notifier-last-checked"
+RUN chown -R 1000:1000 "/root/.npm"
+
+COPY start-prod.sh /usr/src/scripts
+# COPY . .
 
 # Exports
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+ENTRYPOINT ["/bin/bash",  "/usr/src/scripts/start-prod.sh"]
+CMD ["./start-prod.sh"]
+# CMD ["npm", "start"]
