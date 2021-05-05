@@ -6,12 +6,12 @@ WORKDIR /usr/src/app
 
 # Install dependencies
 # COPY package.json .
-# RUN npm install
-# RUN npm install nodemon --global
+RUN npm install
+
 
 # Bundle app source
 # COPY . .
 
 # Exports
 EXPOSE 3000
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "start" ]
