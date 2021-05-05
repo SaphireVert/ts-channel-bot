@@ -2,15 +2,19 @@ import { Telegraf, Markup } from 'telegraf';
 import { Controller } from '../controller/Controller';
 import { Users } from '../controller/Users';
 import { User } from '../model/User';
+var fs = require('fs');
+
 // import { User } from '../model/User';
 
 export class EventsCatcher {
     bot: Telegraf;
     secrets: any;
+    suffix: string;
     
     constructor(bot: Telegraf, secrets: any){
         this.bot = bot;
         this.secrets = secrets;
+        this.suffix = fs.readFileSync('./data/suffixe.txt');
     }
 
     async load(){
@@ -81,7 +85,7 @@ export class EventsCatcher {
             if (Users.list[ctx.message.from.id].isPending == true) {
                 Users.list[ctx.message.from.id].isPending = false;
                 await ctx.reply("Here is the preview of your message.");
-                this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\n(liens pour rejoindre le canal)",
+                this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\n" + this.suffix,
                     [
                         [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
                         [["Cancel", "cancel"]]
