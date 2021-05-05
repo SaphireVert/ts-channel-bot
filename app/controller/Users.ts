@@ -2,7 +2,7 @@ import { User } from "../model/User";
 var fs = require('fs');
 
 export class Users{
-    static storageFile: string = './../data/data.json';
+    static storageFile: string = './data/data.json';
     static list = Users.loadUsers();
     
     constructor(){

@@ -1,0 +1,11 @@
+version: '3'
+services:
+    node:
+        build:
+            context: ./docker
+            dockerfile: dockerfile-dev
+        volumes: 
+            - ./app/:/usr/src/app
+            # - /usr/src/app/node_modules
+        ports: 
+            - '3000:3000'
