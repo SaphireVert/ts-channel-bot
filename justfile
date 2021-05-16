@@ -9,3 +9,6 @@ docker-dev:
     
 docker-prod:
     docker-compose -f docker-compose-prod.yml up --build
+
+npmi:
+    cd ./app && npm install
