@@ -72,8 +72,9 @@ export class EventsCatcher {
 
     async onText(){
         return this.bot.on('text', async (ctx: any) => {
-            Users.check(ctx.from.id);
-            if (!Users.list[ctx.from.id].settings.isAdmin) {
+            console.log(ctx);
+            Users.check(ctx.chat.id);
+            if (!Users.list[ctx.chat.id].settings.isAdmin) {
                 // await ctx.reply("You have to be admin to start using this bot");
                 return this.inlineCallbackKeyboard(ctx.from.id, "You have to be admin to start using this bot", 
                     [
@@ -81,13 +82,13 @@ export class EventsCatcher {
                     ]
                 );  
             }
-            if (Users.list[ctx.message.from.id].isPending == true) {
-                Users.list[ctx.message.from.id].isPending = false;
+            if (Users.list[ctx.message.chat.id].isPending == true) {
+                Users.list[ctx.message.chat.id].isPending = false;
                 await ctx.reply("Here is the preview of your message.");
                 this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\n" + this.suffix,
                     [
                         [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
-                        [["Cancel", "cancel"]]
+                        [["Validation sample", "validation"]]
                     ]
                 );  
             }
@@ -148,8 +149,15 @@ export class EventsCatcher {
                 case "publish":
                     let ctxMarkupPublish = ctx.update.callback_query.message.reply_markup;
                     ctxMarkupPublish.inline_keyboard[0] = [{ text: "Published", callback_data: "none" }];
-                    this.bot.telegram.sendMessage(this.secrets.channelID, ctx.update.callback_query.message.text)
-                    this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupPublish)
+                    this.bot.telegram.sendMessage(this.secrets.channelID, ctx.update.callback_query.message.text);
+                    this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupPublish);
+                    break;   
+
+                case "validation":
+                    let ctxMarkupValidation = ctx.update.callback_query.message.reply_markup;
+                    ctxMarkupValidation.inline_keyboard[1] = [{ text: "Validation sent", callback_data: "none" }];
+                    this.bot.telegram.sendMessage(this.secrets.JCid, ctx.update.callback_query.message.text);
+                    this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupValidation);
                     break;
             }
             return "toto";
