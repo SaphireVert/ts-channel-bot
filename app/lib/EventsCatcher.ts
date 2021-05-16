@@ -10,7 +10,7 @@ export class EventsCatcher {
     bot: Telegraf;
     secrets: any;
     suffix: string;
-    
+
     constructor(bot: Telegraf, secrets: any){
         this.bot = bot;
         this.secrets = secrets;
@@ -46,9 +46,9 @@ export class EventsCatcher {
             let ifAdmin = Users.list[userFromId].settings.isAdmin ? false : true;
             // let message = Users.list[userFromId].settings.isAdmin ? "What would you want to do ?" : "You have to be admin to start using this bot"
             let message = Users.list[userFromId].settings.isAdmin ? "What would you want to do ?" : "You have to be admin to start using this bot"
-            
+
             if(!Users.list[userFromId].settings.isAdmin){
-                
+
             } else {
                 return this.bot.telegram.sendMessage(userFromId, message, Markup
                     .keyboard([
@@ -58,54 +58,56 @@ export class EventsCatcher {
                     .oneTime()
                     .resize())
             }
-            
-            // this.inlineCallbackKeyboard(userFromId, message, 
+
+            // this.inlineCallbackKeyboard(userFromId, message,
             //     [
             //         [["Admin request", "admin_request", ifNotAdmin], ["New post", "new_post", ifAdmin]],
             //         [["Settings", "settings", ifAdmin], ["Edit posts", "totoCallback", true]]
             //     ]
-            // );  
-            
-            
-            
+            // );
+
+
+
     }
 
     async onText(){
         return this.bot.on('text', async (ctx: any) => {
-            console.log(ctx);
+            console.log(ctx.message);
             Users.check(ctx.chat.id);
             if (!Users.list[ctx.chat.id].settings.isAdmin) {
                 // await ctx.reply("You have to be admin to start using this bot");
-                return this.inlineCallbackKeyboard(ctx.chat.id, "You have to be admin to start using this bot", 
+                return this.inlineCallbackKeyboard(ctx.chat.id, "You have to be admin to start using this bot",
                     [
                         [["Admin request", "admin_request"]]
                     ]
-                );  
+                );
             }
-            if (Users.list[ctx.message.chat.id].isPending == true) {
-                Users.list[ctx.message.chat.id].isPending = false;
+            if (Users.list[ctx.chat.id].isPending == true) {
+                Users.list[ctx.chat.id].isPending = false;
                 await ctx.reply("Here is the preview of your message.");
-                this.inlineCallbackKeyboard(ctx.message.from.id, ctx.message.text + "\n\n\n" + this.suffix,
+                this.inlineCallbackKeyboard(ctx.chat.id, ctx.message.text + "\n\n\n" + this.suffix,
                     [
                         [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
                         [["Validation sample", "validation"]]
                     ]
-                );  
+                );
             }
             var commandArray = ctx.message.text.split(" ");
             switch (true) {
-                case new RegExp(`(^\/test)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.test(ctx); break;  
-                case new RegExp(`(^\/menu)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.menu(ctx.from.id); break;
+                case new RegExp(`(^\/test)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.test(ctx); break;
+                case new RegExp(`(^\/menu)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.menu(ctx.chat.id); break;
                 case new RegExp(`(^\/start)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.start(ctx); break;
                 case new RegExp('📢 New post').test(ctx.message.text): this.newPost(ctx); break;
                 default: break;
             }
-        })   
+        })
     }
 
     async onCallbackQuery(){
         return this.bot.on('callback_query', async (ctx: any) => {
-            var callbackUserFrom = ctx.update.callback_query.from
+            console.log(ctx.update.callback_query.message.chat);
+            console.log(ctx.update.callback_query.data);
+            var callbackUserFrom = ctx.update.callback_query.message.chat
             var queryData:string = ctx.update.callback_query.data;
             var command = queryData.split(" ");
             switch(command[0]){
@@ -151,7 +153,7 @@ export class EventsCatcher {
                     ctxMarkupPublish.inline_keyboard[0] = [{ text: "Published", callback_data: "none" }];
                     this.bot.telegram.sendMessage(this.secrets.channelID, ctx.update.callback_query.message.text);
                     this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupPublish);
-                    break;   
+                    break;
 
                 case "validation":
                     let ctxMarkupValidation = ctx.update.callback_query.message.reply_markup;
@@ -165,12 +167,12 @@ export class EventsCatcher {
     }
 
     async newPost(ctx:any){
-        Users.list[ctx.message.from.id].isPending = true;
+        Users.list[ctx.chat.id].isPending = true;
         ctx.reply("Ok, tell me what you would like to post.")
     }
 
     async start(ctx:any){
-        Users.check(ctx.message.from.id);
+        Users.check(ctx.chat.id);
         ctx.reply('Welcome ! Type /menu to begin');
     }
 
