@@ -76,7 +76,7 @@ export class EventsCatcher {
             Users.check(ctx.chat.id);
             if (!Users.list[ctx.chat.id].settings.isAdmin) {
                 // await ctx.reply("You have to be admin to start using this bot");
-                return this.inlineCallbackKeyboard(ctx.from.id, "You have to be admin to start using this bot", 
+                return this.inlineCallbackKeyboard(ctx.chat.id, "You have to be admin to start using this bot", 
                     [
                         [["Admin request", "admin_request"]]
                     ]
