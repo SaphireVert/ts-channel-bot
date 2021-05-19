@@ -1,4 +1,4 @@
-import { Telegraf, Markup } from 'telegraf';
+import { Telegraf, Markup, Context } from 'telegraf';
 import { Controller } from '../controller/Controller';
 import { Users } from '../controller/Users';
 import { User } from '../model/User';
@@ -40,6 +40,22 @@ export class EventsCatcher {
         })
     }
 
+    async inlineCallbackLinkButtons(chat_id: string, inline_message: string, keyboard: Array<any>){
+        let inlineKeyboard: Array<any> = [];
+        for (let i = 0; i < keyboard.length; i++) {
+            inlineKeyboard[i] = [];
+            for (let j = 0; j < keyboard[i].length; j++) {
+                inlineKeyboard[i][j] = [];
+                inlineKeyboard[i][j] = Markup.button['url'](keyboard[i][j][0], keyboard[i][j][1], keyboard[i][j][2]);
+            }
+        }
+        const test = [[{ text: '👍', callback_data: ':smiley:', hide: false }]];
+        return this.bot.telegram.sendMessage(chat_id, inline_message, {
+            parse_mode: 'HTML',
+            ...Markup.inlineKeyboard(inlineKeyboard)
+        })
+    }
+
     async menu(userFromId:any){
             Users.check(userFromId);
             let ifNotAdmin = Users.list[userFromId].settings.isAdmin;
@@ -53,7 +69,7 @@ export class EventsCatcher {
                 return this.bot.telegram.sendMessage(userFromId, message, Markup
                     .keyboard([
                       ['📢 New post'], // Row1 with 2 buttons
-                      ['⚙️ Setting'], // Row2 with 2 buttons
+                    //   ['⚙️ Settings'], // Row2 with 2 buttons
                     ])
                     .oneTime()
                     .resize())
@@ -78,16 +94,16 @@ export class EventsCatcher {
                 this.inlineCallbackKeyboard(ctx.chat.id, ctx.message.text + "\n\n\n" + this.suffix,
                     [
                         [[`Publish`, `publish ${this.bot.botInfo?.username}`]],
-                        [["Validation sample", "validation"]]
+                        [["Validation sample", "validation"]],
                     ]
                 );
             }
             var commandArray = ctx.message.text.split(" ");
             switch (true) {
-                case new RegExp(`(^\/test)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.test(ctx); break;
                 case new RegExp(`(^\/menu)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.menu(ctx.chat.id); break;
                 case new RegExp(`(^\/start)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.start(ctx); break;
                 case new RegExp('📢 New post').test(ctx.message.text): this.newPost(ctx); break;
+                // case new RegExp(`(^\/test)(@${this.bot.botInfo?.username})?$`).test(commandArray[0]): this.test(ctx, "SuperToto"); break;
                 default: break;
             }
         })
@@ -97,6 +113,7 @@ export class EventsCatcher {
         return this.bot.on('callback_query', async (ctx: any) => {
             console.log(ctx.update.callback_query.message.chat);
             console.log(ctx.update.callback_query.data);
+            console.log(ctx.update.callback_query);
             var callbackUserFrom = ctx.update.callback_query.message.chat
             var queryData:string = ctx.update.callback_query.data;
             var command = queryData.split(" ");
@@ -140,12 +157,20 @@ export class EventsCatcher {
 
                 case "publish":
                     let ctxMarkupPublish = ctx.update.callback_query.message.reply_markup;
-                    ctxMarkupPublish.inline_keyboard[0] = [{ text: "Published", callback_data: "none" }];
-                    this.bot.telegram.sendMessage(this.secrets.channelID, ctx.update.callback_query.message.text);
+                    ctxMarkupPublish.inline_keyboard[0] = [{ text: "Published", callback_data: "published" }];
+                    this.bot.telegram.answerCbQuery(ctx.update.callback_query.id, "This post has been successfully published ! 🔥")
+                    this.publish(this.secrets.channelID, ctx.update.callback_query.message.text.substring(0, ctx.update.callback_query.message.text.length - 121));
                     this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupPublish);
                     break;
 
+                case "published":
+                    this.bot.telegram.answerCbQuery(ctx.update.callback_query.id, "This post is already published !")
+                    break;
                 case "validation":
+                    this.bot.telegram.answerCbQuery(ctx.update.callback_query.id, "Ça, c'est pour bientôt ! ;)");
+                    break;
+                    
+                case "_validation":
                     let ctxMarkupValidation = ctx.update.callback_query.message.reply_markup;
                     ctxMarkupValidation.inline_keyboard[1] = [{ text: "Validation sent", callback_data: "none" }];
                     this.inlineCallbackKeyboard(this.secrets.validation_group, ctx.update.callback_query.message.text, [[["👍", `upvote`], ["👎", `downvote`]]]);
@@ -156,6 +181,9 @@ export class EventsCatcher {
                     break;
                 
                 case "downvote":
+                    break;
+
+                case "none":
                     break;
             }
             return "toto";
@@ -176,7 +204,11 @@ export class EventsCatcher {
         return this.bot.launch();
     }
 
-    async test(ctx:any){
-        ctx.reply(ctx.message.text)
+    async publish(channelId:any, message:string){
+        var jsonObj = JSON.parse(fs.readFileSync("./data/suffixe.json"));
+        
+        return this.inlineCallbackLinkButtons(channelId, message, [
+            [["📢   Canal   🔔", jsonObj.canal], ["💬   Discussion   👥", jsonObj.groupe]]
+        ]);
     }
 }
