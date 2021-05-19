@@ -158,8 +158,14 @@ export class EventsCatcher {
                 case "validation":
                     let ctxMarkupValidation = ctx.update.callback_query.message.reply_markup;
                     ctxMarkupValidation.inline_keyboard[1] = [{ text: "Validation sent", callback_data: "none" }];
-                    this.bot.telegram.sendMessage(this.secrets.JCid, ctx.update.callback_query.message.text);
+                    this.inlineCallbackKeyboard(this.secrets.validation_group, ctx.update.callback_query.message.text, [[["👍", `upvote`], ["👎", `downvote`]]]);
                     this.bot.telegram.editMessageReplyMarkup(ctx.update.callback_query.message.chat.id, ctx.update.callback_query.message.message_id, undefined, ctxMarkupValidation);
+                    break;
+                
+                case "upvote":
+                    break;
+                
+                case "downvote":
                     break;
             }
             return "toto";
