@@ -58,16 +58,6 @@ export class EventsCatcher {
                     .oneTime()
                     .resize())
             }
-
-            // this.inlineCallbackKeyboard(userFromId, message,
-            //     [
-            //         [["Admin request", "admin_request", ifNotAdmin], ["New post", "new_post", ifAdmin]],
-            //         [["Settings", "settings", ifAdmin], ["Edit posts", "totoCallback", true]]
-            //     ]
-            // );
-
-
-
     }
 
     async onText(){
